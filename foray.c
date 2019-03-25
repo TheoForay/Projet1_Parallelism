@@ -192,7 +192,7 @@ void max_suffix_descente(struct tablo * a, struct tablo * b) {
 }
 
 void generateArray(struct tablo * s) {
-  s->size=16;
+  /*s->size=16;
   s->tab=malloc(s->size*sizeof(int));
   s->tab[0]=3;
   s->tab[1]=2;
@@ -209,7 +209,25 @@ void generateArray(struct tablo * s) {
   s->tab[12]=4;
   s->tab[13]=-3;
   s->tab[14]=0;
-  s->tab[15]=2;
+  s->tab[15]=2;*/
+
+	s->size=4;
+	s->tab=malloc(s->size*sizeof(int));
+	s->tab[0]=1;
+	s->tab[1]=5;
+	s->tab[2]=-2;
+	s->tab[3]=10;
+
+	/*s->size=8;
+	s->tab=malloc(s->size*sizeof(int));
+	s->tab[0]=2;
+	s->tab[1]=-1;
+	s->tab[2]=5;
+	s->tab[3]=10;
+	s->tab[4]=-65;
+	s->tab[5]=32;
+	s->tab[6]=12;
+	s->tab[7]=48;*/
 }
 
 void getGoodArray(struct tablo * final, struct tablo * apresFinal) {
@@ -266,6 +284,52 @@ void max_suffix(struct tablo source, struct tablo * goodValues) {
   getGoodArray(goodValues, b);
 }
 
+void getMaxParallel(struct tablo * source, struct tablo * tabMax) {
+	//On copie source à la fin de tabMax
+	int a_size = source->size;
+	int b_size = tabMax->size;
+	for (; a_size > 0; ) {
+		tabMax->tab[b_size-1] = source->tab[a_size-1];
+		a_size--;
+		b_size--;
+	}
+
+	int m = log2((source->size+1));
+	for (int l = m-1; l >= 0; l--) {
+		for (int j = pow(2.0, l); j <= pow(2.0, l+1)-1; j++) {
+			tabMax->tab[j] = max(tabMax->tab[2*j], tabMax->tab[2*j+1]);
+		}
+	}
+}
+
+void getMaxSubArrayIndices(struct tablo * source, struct tablo * tabIndices, int maximum) {
+	int j = 0;
+
+	for(int i = 0; i < source->size; i++) {
+		//Puisque les sum max sont tous regroupés dans M (voir main), pas besoin vérifier autre chose
+		if (source->tab[i] == maximum) {
+			tabIndices->tab[j] = i;
+			j++;
+		}
+	}
+	tabIndices->size = j+1;
+}
+
+void printMaxSubArray(struct tablo source, struct tablo * tabIndices) {
+	for (int i = 0; i < tabIndices->size; i++) {
+		if (tabIndices->tab[i] >= 0) {
+			printf("%d ", source.tab[tabIndices->tab[i]]);
+		}
+	}
+	printf("\n");
+}
+
+void negativeInit(struct tablo * tabIndices) {
+	for (int i = 0; i < tabIndices->size; i++) {
+		tabIndices->tab[i] = -1;
+	}
+}
+
 int main(int argc, char **argv) {
   struct tablo source;
 
@@ -290,4 +354,13 @@ int main(int argc, char **argv) {
   }
   printArray(M);
   
+  struct tablo * tabMax = allocateTablo(M->size*2);
+  getMaxParallel(M, tabMax);
+  printf("The maximum sum is %d\n", tabMax->tab[1]);
+
+  struct tablo * tabIndices = allocateTablo(M->size);
+  negativeInit(tabIndices);
+  getMaxSubArrayIndices(M, tabIndices, tabMax->tab[1]);
+  printArray(tabIndices);
+  printMaxSubArray(source, tabIndices);
 }
