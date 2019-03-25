@@ -192,7 +192,7 @@ void max_suffix_descente(struct tablo * a, struct tablo * b) {
 }
 
 void generateArray(struct tablo * s) {
-  /*s->size=16;
+  s->size=16;
   s->tab=malloc(s->size*sizeof(int));
   s->tab[0]=3;
   s->tab[1]=2;
@@ -209,14 +209,14 @@ void generateArray(struct tablo * s) {
   s->tab[12]=4;
   s->tab[13]=-3;
   s->tab[14]=0;
-  s->tab[15]=2;*/
+  s->tab[15]=2;
 
-	s->size=4;
+	/*s->size=4;
 	s->tab=malloc(s->size*sizeof(int));
 	s->tab[0]=1;
 	s->tab[1]=5;
 	s->tab[2]=-2;
-	s->tab[3]=10;
+	s->tab[3]=10;*/
 
 	/*s->size=8;
 	s->tab=malloc(s->size*sizeof(int));
@@ -312,7 +312,7 @@ void getMaxSubArrayIndices(struct tablo * source, struct tablo * tabIndices, int
 			j++;
 		}
 	}
-	tabIndices->size = j+1;
+
 }
 
 void printMaxSubArray(struct tablo source, struct tablo * tabIndices) {
@@ -361,6 +361,5 @@ int main(int argc, char **argv) {
   struct tablo * tabIndices = allocateTablo(M->size);
   negativeInit(tabIndices);
   getMaxSubArrayIndices(M, tabIndices, tabMax->tab[1]);
-  printArray(tabIndices);
   printMaxSubArray(source, tabIndices);
 }
