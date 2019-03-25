@@ -220,117 +220,61 @@ void getGoodArray(struct tablo * final, struct tablo * apresFinal) {
 }
 
 void sum_prefix(struct tablo source, struct tablo * goodValues) {
-  //printf("Montee : \n");
   struct tablo * a = allocateTablo(source.size*2);
   sum_prefix_montee(&source, a);
-  /*printArray(a);
-  printf("__________________________________\n");*/
 
-  //printf("Descente : \n");
   struct tablo * b = allocateTablo(source.size*2);
   sum_prefix_descente(a, b);
-  /*printArray(b);
-  printf("__________________________________\n");*/
    
-  //printf("Tableau final total: \n");
   sum_prefix_final(a,b);
-  //printArray(b);
 
   getGoodArray(goodValues, b);
 }
 void sum_suffix(struct tablo source, struct tablo * goodValues) {
-  //printf("Montee : \n");
   struct tablo * a = allocateTablo(source.size*2);
   sum_prefix_montee(&source, a);
-  /*printArray(a);
-  printf("__________________________________\n");*/
 
-  //printf("Descente : \n");
   struct tablo * b = allocateTablo(source.size*2);
   sum_suffix_descente(a, b);
-  /*printArray(b);
-  printf("__________________________________\n");*/
-   
-  //printf("Tableau final total: \n");
+
   sum_prefix_final(a,b);
-  //printArray(b);
 
   getGoodArray(goodValues, b);
 }
 
 void max_prefix(struct tablo source, struct tablo * goodValues) {
-  //printf("Montee : \n");
   struct tablo * a = allocateTablo(source.size*2);
   max_prefix_montee(&source, a);
-  /*printArray(a);
-  printf("__________________________________\n");*/
 
- //printf("Descente : \n");
   struct tablo * b = allocateTablo(source.size*2);
   max_prefix_descente(a, b);
-  /*printArray(b);
-  printf("__________________________________\n");*/
    
-  //printf("Tableau final total: \n");
   max_prefix_final(a,b);
-  //printArray(b);
 
   getGoodArray(goodValues, b);
 }
 
 void max_suffix(struct tablo source, struct tablo * goodValues) {
-  //printf("Montee : \n");
   struct tablo * a = allocateTablo(source.size*2);
   max_prefix_montee(&source, a);
-  /*printArray(a);
-  printf("__________________________________\n");*/
 
-  //printf("Descente : \n");
   struct tablo * b = allocateTablo(source.size*2);
   max_suffix_descente(a, b);
-  /*printArray(b);
-  printf("__________________________________\n");*/
    
-  //printf("Tableau final total: \n");
   max_prefix_final(a,b);
-  //printArray(b);
 
   getGoodArray(goodValues, b);
-  /*printf("Tableau final max_suffix: \n");
-  printArray(goodValues);*/
 }
 
 int main(int argc, char **argv) {
   struct tablo source;
 
   generateArray(&source);
-  /*printf("Tableau source : \n");
-  printArray(&source);*/
 
   struct tablo * psum = allocateTablo(source.size);
   struct tablo * ssum = allocateTablo(source.size);
   struct tablo * smax = allocateTablo(source.size);
   struct tablo * pmax = allocateTablo(source.size);
-
-  /*printf("############################sum_prefix#######################\n");
-  sum_prefix(source, psum);
-  printf("Tableau final sum_prefix: \n");
-  printArray(psum);
-
-  printf("\n############################sum_suffix#######################\n"); 
-  sum_suffix(source, ssum);
-  printf("Tableau final sum_suffix: \n");
-  printArray(ssum);
-
-  printf("\n############################max_suffix#######################\n"); 
-  max_suffix(*psum, smax);
-  printf("Tableau final max_suffix: \n");
-  printArray(smax);
-
-  printf("\n############################max_prefix#######################\n"); 
-  max_prefix(*ssum, pmax); 
-  printf("Tableau final max_prefix\n");
-  printArray(pmax);*/
 
   sum_prefix(source, psum);
   sum_suffix(source, ssum);
