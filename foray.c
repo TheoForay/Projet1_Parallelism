@@ -389,21 +389,22 @@ int main(int argc, char **argv) {
   max_suffix(*psum, smax);
   max_prefix(*ssum, pmax);
 
-  printf("\n############################    M    #######################\n"); 
+  //printf("\n############################    M    #######################\n"); 
   struct tablo * M = allocateTablo(source.size);
   for (int i = 0; i < source.size; i++) {
     int Ms = pmax->tab[i] - ssum->tab[i] + source.tab[i];
     int Mp = smax->tab[i] - psum->tab[i] + source.tab[i];
     M->tab[i] = Ms + Mp - source.tab[i];
   }
-  printArray(M);
+  //printArray(M);
   
   struct tablo * tabMax = allocateTablo(M->size*2);
   getMaxParallel(M, tabMax);
-  printf("The maximum sum is %d\n", tabMax->tab[1]);
+  //printf("The maximum sum is %d\n", tabMax->tab[1]);
 
   struct tablo * tabIndices = allocateTablo(M->size);
   negativeInit(tabIndices);
   getMaxSubArrayIndices(M, tabIndices, tabMax->tab[1]);
+  printf("%d ", tabMax->tab[1]);
   printMaxSubArray(source, tabIndices);
 }
