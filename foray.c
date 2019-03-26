@@ -35,6 +35,14 @@ struct tablo * allocateTablo(int size) {
   return tmp;
 }
 
+struct tablo * reallocateTablo(struct tablo * base, int size) {
+  struct tablo * tmp = realloc(base, sizeof(struct tablo));
+  tmp->size = size;
+  tmp->tab = realloc(base, size*sizeof(int));
+  tmp->tab[0]=0;
+  return tmp;
+}
+
 void sum_prefix_montee(struct tablo * source, struct tablo * destination) {
   //TODO : fill the destination array of size 2*n by copying the 
   // source array at the end
@@ -330,11 +338,47 @@ void negativeInit(struct tablo * tabIndices) {
 	}
 }
 
+void generateArrayFromFile(char* filename, FILE* fichier, struct tablo * source) {
+  fichier = fopen(filename, "r");
+  int i = 0;
+  int c = 0;
+  int potentialEOF;
+  if (fichier != NULL) {
+    potentialEOF = fscanf(fichier, "%i", &c);
+    while (potentialEOF != EOF) {
+      i++;
+      potentialEOF = fscanf(fichier, "%i", &c);
+    }
+    source->tab = malloc(i*sizeof(int)); //On allocate une fois qu'on connait le nombre d'élément dans le fichier/tableau
+    fclose(fichier);
+  } else {
+    printf("Impossible de lire le fichier\n");
+  }
+  fichier = fopen(filename, "r");
+  if (fichier != NULL) {
+    c = 0;
+    i = 0;
+    potentialEOF = fscanf(fichier, "%i", &c);
+    while (potentialEOF != EOF) {
+      source->tab[i] = c;
+      i++;
+      potentialEOF = fscanf(fichier, "%i", &c);
+    }
+    source->size = i;
+    fclose(fichier);
+  } else {
+    printf("Impossible de lire le fichier\n");
+  }
+}
+
 int main(int argc, char **argv) {
   struct tablo source;
+  FILE* fichier = NULL;
 
-  generateArray(&source);
-
+  //generateArray(&source);
+  
+  generateArrayFromFile(argv[1], fichier, &source);
+  
   struct tablo * psum = allocateTablo(source.size);
   struct tablo * ssum = allocateTablo(source.size);
   struct tablo * smax = allocateTablo(source.size);
