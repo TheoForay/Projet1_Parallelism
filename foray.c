@@ -18,11 +18,11 @@ int max(int a, int b) {
 }
 
 void printArray(struct tablo * tmp) {
-  printf("---- Array of size %i ---- \n", tmp->size);
+  printf("---- Array of size %d ---- \n", tmp->size);
   int size = tmp->size;
   int i;
   for (i = 0; i < size; ++i) {
-    printf("%i ", tmp->tab[i]);
+    printf("%d ", tmp->tab[i]);
   }
   printf("\n");
 }
@@ -31,14 +31,6 @@ struct tablo * allocateTablo(int size) {
   struct tablo * tmp = malloc(sizeof(struct tablo));
   tmp->size = size;
   tmp->tab = malloc(size*sizeof(int));
-  tmp->tab[0]=0;
-  return tmp;
-}
-
-struct tablo * reallocateTablo(struct tablo * base, int size) {
-  struct tablo * tmp = realloc(base, sizeof(struct tablo));
-  tmp->size = size;
-  tmp->tab = realloc(base, size*sizeof(int));
   tmp->tab[0]=0;
   return tmp;
 }
@@ -344,25 +336,15 @@ void generateArrayFromFile(char* filename, FILE* fichier, struct tablo * source)
   int c = 0;
   int potentialEOF;
   if (fichier != NULL) {
-    potentialEOF = fscanf(fichier, "%i", &c);
-    while (potentialEOF != EOF) {
-      i++;
-      potentialEOF = fscanf(fichier, "%i", &c);
-    }
-    source->tab = malloc(i*sizeof(int)); //On allocate une fois qu'on connait le nombre d'élément dans le fichier/tableau
-    fclose(fichier);
-  } else {
-    printf("Impossible de lire le fichier\n");
-  }
-  fichier = fopen(filename, "r");
-  if (fichier != NULL) {
-    c = 0;
-    i = 0;
-    potentialEOF = fscanf(fichier, "%i", &c);
+    source->tab = malloc(100*sizeof(int));
+    potentialEOF = fscanf(fichier, "%d", &c);
     while (potentialEOF != EOF) {
       source->tab[i] = c;
       i++;
-      potentialEOF = fscanf(fichier, "%i", &c);
+      potentialEOF = fscanf(fichier, "%d", &c);
+      if (i%100 == 0) {
+        source->tab = realloc(source->tab, (i+100)*sizeof(int));
+      }
     }
     source->size = i;
     fclose(fichier);
@@ -391,6 +373,7 @@ int main(int argc, char **argv) {
 
   //printf("\n############################    M    #######################\n"); 
   struct tablo * M = allocateTablo(source.size);
+  #pragma omp parallel for
   for (int i = 0; i < source.size; i++) {
     int Ms = pmax->tab[i] - ssum->tab[i] + source.tab[i];
     int Mp = smax->tab[i] - psum->tab[i] + source.tab[i];
