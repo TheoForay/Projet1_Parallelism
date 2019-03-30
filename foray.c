@@ -4,13 +4,16 @@
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
+#include <limits.h>
+
+#define TYPE long
 
 struct tablo {
-  int * tab;
-  int size;
+  TYPE * tab;
+  TYPE size;
 };
 
-int max(int a, int b) {
+TYPE max(TYPE a, TYPE b) {
   if (a >= b) {
     return a;
   }
@@ -18,19 +21,19 @@ int max(int a, int b) {
 }
 
 void printArray(struct tablo * tmp) {
-  printf("---- Array of size %d ---- \n", tmp->size);
-  int size = tmp->size;
+  printf("---- Array of size %ld ---- \n", tmp->size);
+  TYPE size = tmp->size;
   int i;
   for (i = 0; i < size; ++i) {
-    printf("%d ", tmp->tab[i]);
+    printf("%ld ", tmp->tab[i]);
   }
   printf("\n");
 }
 
-struct tablo * allocateTablo(int size) {
+struct tablo * allocateTablo(TYPE size) {
   struct tablo * tmp = malloc(sizeof(struct tablo));
   tmp->size = size;
-  tmp->tab = malloc(size*sizeof(int));
+  tmp->tab = malloc(size*sizeof(TYPE));
   tmp->tab[0]=0;
   return tmp;
 }
@@ -39,8 +42,8 @@ void sum_prefix_montee(struct tablo * source, struct tablo * destination) {
   //TODO : fill the destination array of size 2*n by copying the 
   // source array at the end
   // You can assume the malloc for the destination array has been performed.
-  int a_size = source->size;
-  int b_size = destination->size;
+  TYPE a_size = source->size;
+  TYPE b_size = destination->size;
   for (; a_size > 0; ) {
     destination->tab[b_size-1] = source->tab[a_size-1];
     a_size--;
@@ -92,8 +95,8 @@ void max_prefix_montee(struct tablo * source, struct tablo * destination) {
   //TODO : fill the destination array of size 2*n by copying the 
   // source array at the end
   // You can assume the malloc for the destination array has been performed.
-  int a_size = source->size;
-  int b_size = destination->size;
+  TYPE a_size = source->size;
+  TYPE b_size = destination->size;
   for (; a_size > 0; ) {
     destination->tab[b_size-1] = source->tab[a_size-1];
     a_size--;
@@ -114,7 +117,7 @@ void max_prefix_montee(struct tablo * source, struct tablo * destination) {
 
 void max_prefix_descente(struct tablo * a, struct tablo * b) {
   // TODO : implement the down phase of the algorithm
-  b->tab[1] = -100000;
+  b->tab[1] = INT_MIN;
   int m = log2((a->size+1)/2);
   for (int l = 1; l <= m; l++) {
     int begin = pow(2.0, l);
@@ -175,7 +178,7 @@ void max_suffix_descente(struct tablo * a, struct tablo * b) {
   //    -> C'est pourquoi la condition est "inversée" et l'indice pour a->tab devient j+1 au lieu de j-1 car puisque c'est le miroir, 
   //      le frère est de l'autre coté par rapport au père
 
-  b->tab[1] = -100000;
+  b->tab[1] = INT_MIN;
   int m = log2((a->size+1)/2);
   for (int l = 1; l <= m; l++) {
     int begin = pow(2.0, l);
@@ -286,8 +289,8 @@ void max_suffix(struct tablo source, struct tablo * goodValues) {
 
 void getMaxParallel(struct tablo * source, struct tablo * tabMax) {
 	//On copie source à la fin de tabMax
-	int a_size = source->size;
-	int b_size = tabMax->size;
+	TYPE a_size = source->size;
+	TYPE b_size = tabMax->size;
 	for (; a_size > 0; ) {
 		tabMax->tab[b_size-1] = source->tab[a_size-1];
 		a_size--;
@@ -296,13 +299,15 @@ void getMaxParallel(struct tablo * source, struct tablo * tabMax) {
 
 	int m = log2((source->size+1));
 	for (int l = m-1; l >= 0; l--) {
-		for (int j = pow(2.0, l); j <= pow(2.0, l+1)-1; j++) {
+    int borne = (pow(2.0, l+1)-1);
+    #pragma omp parallel for
+		for (int j = pow(2.0, l); j <= borne; j++) {
 			tabMax->tab[j] = max(tabMax->tab[2*j], tabMax->tab[2*j+1]);
 		}
 	}
 }
 
-void getMaxSubArrayIndices(struct tablo * source, struct tablo * tabIndices, int maximum) {
+void getMaxSubArrayIndices(struct tablo * source, struct tablo * tabIndices, TYPE maximum) {
 	int j = 0;
 
 	for(int i = 0; i < source->size; i++) {
@@ -318,7 +323,7 @@ void getMaxSubArrayIndices(struct tablo * source, struct tablo * tabIndices, int
 void printMaxSubArray(struct tablo source, struct tablo * tabIndices) {
 	for (int i = 0; i < tabIndices->size; i++) {
 		if (tabIndices->tab[i] >= 0) {
-			printf("%d ", source.tab[tabIndices->tab[i]]);
+			printf("%ld ", source.tab[tabIndices->tab[i]]);
 		}
 	}
 	printf("\n");
@@ -333,17 +338,17 @@ void negativeInit(struct tablo * tabIndices) {
 void generateArrayFromFile(char* filename, FILE* fichier, struct tablo * source) {
   fichier = fopen(filename, "r");
   int i = 0;
-  int c = 0;
+  TYPE c = 0;
   int potentialEOF;
   if (fichier != NULL) {
-    source->tab = malloc(100*sizeof(int));
-    potentialEOF = fscanf(fichier, "%d", &c);
+    source->tab = malloc(100*sizeof(TYPE));
+    potentialEOF = fscanf(fichier, "%ld", &c);
     while (potentialEOF != EOF) {
       source->tab[i] = c;
       i++;
-      potentialEOF = fscanf(fichier, "%d", &c);
+      potentialEOF = fscanf(fichier, "%ld", &c);
       if (i%100 == 0) {
-        source->tab = realloc(source->tab, (i+100)*sizeof(int));
+        source->tab = realloc(source->tab, (i+100)*sizeof(TYPE));
       }
     }
     source->size = i;
@@ -375,8 +380,8 @@ int main(int argc, char **argv) {
   struct tablo * M = allocateTablo(source.size);
   #pragma omp parallel for
   for (int i = 0; i < source.size; i++) {
-    int Ms = pmax->tab[i] - ssum->tab[i] + source.tab[i];
-    int Mp = smax->tab[i] - psum->tab[i] + source.tab[i];
+    TYPE Ms = pmax->tab[i] - ssum->tab[i] + source.tab[i];
+    TYPE Mp = smax->tab[i] - psum->tab[i] + source.tab[i];
     M->tab[i] = Ms + Mp - source.tab[i];
   }
   //printArray(M);
@@ -388,6 +393,6 @@ int main(int argc, char **argv) {
   struct tablo * tabIndices = allocateTablo(M->size);
   negativeInit(tabIndices);
   getMaxSubArrayIndices(M, tabIndices, tabMax->tab[1]);
-  printf("%d ", tabMax->tab[1]);
+  printf("%ld ", tabMax->tab[1]);
   printMaxSubArray(source, tabIndices);
 }
